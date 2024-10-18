@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Lessons Notes</title>
+  <link href='/assets/css/bootstrap.css' rel='stylesheet'>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+  <header class="p-5 bg-success text-white text-center mb-3">
+    <h1>Notes Edit</h1>
+  </header>
+
+  <section class="container min-vh-100">
+    <form id="editForm">
+      <div class="form-group col-md-12 mb-3">
+        <label for="titlenote">Title Notes</label>
+        <input type="text" class="form-control" id="titlenote" placeholder="Title Notes">
+      </div>
+      <div class="form-group col-md-12 mb-3">
+        <label for="descnotes">Description Notes</label>
+        <textarea class="form-control" id="descnotes" rows="3" placeholder="Description Notes"></textarea>
+      </div>
+    </form>
+
+    <div class="d-flex justify-content-start mt-3">
+      <button id="update-btn" class="btn btn-success me-2">Update</button>
+      <a href="index.html" class="btn btn-secondary">Back</a>
+    </div>
+  </section>
+
+  <footer class="p-3 bg-success text-center">
+    <span class="text-light">Made with 🤍 Prawita</span>
+  </footer>
+
+  <script>
+    $(document).ready(function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const noteId = urlParams.get('id');
+
+      if (!noteId) {
+        alert("Note ID not found in URL!");
+        return;
+      }
+
+      $.ajax({
+        type: "GET",
+        url: `https://dev-api.surosowancyber.or.id/getNoteById/${noteId}`,
+        dataType: "JSON",
+        success: function (response) {
+          const note = response.data;
+          $('#titlenote').val(note.title);
+          $('#descnotes').val(note.description);
+        },
+        error: function () {
+          alert("Error fetching note details.");
+        }
+      });
+
+      $('#update-btn').click(function (e) {
+        e.preventDefault();
+
+        const updatedTitle = $('#titlenote').val();
+        const updatedDescription = $('#descnotes').val();
+
+        $.ajax({
+          type: "POST",
+          url: `https://dev-api.surosowancyber.or.id/updateNote`,
+          contentType: "application/json",
+          data: JSON.stringify({
+            noteId: noteId,
+            title: updatedTitle,
+            description: updatedDescription
+          }),
+          success: function () {
+            alert("Note updated successfully!");
+            window.location.href = `detail.html?id=${noteId}`;
+          },
+          error: function () {
+            alert("Error updating note.");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

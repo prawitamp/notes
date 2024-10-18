@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Note Details</title>
+    <link href="/assets/css/bootstrap.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <header class="p-5 bg-success text-white text-center mb-3">
+      <h1>Note Details</h1>
+    </header>
+    <section class="container min-vh-100">
+      <div class="d-flex justify-content-start mb-3">
+        <a class="btn btn-secondary" href="index.html" role="button">Back</a>
+      </div>
+      <section id="noteDetails"></section>
+    </section>
+    <footer class="p-3 bg-success text-center">
+      <span class="text-light">Made with 🤍 Prawita</span>
+    </footer>
+
+    <script>
+      $(document).ready(function () {
+        function getQueryParam(param) {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get(param);
+        }
+
+        const noteId = getQueryParam("id");
+
+        if (noteId) {
+          $.ajax({
+            type: "GET",
+            url: `https://dev-api.surosowancyber.or.id/getNoteById/${noteId}`,
+            dataType: "JSON",
+            success: function (response) {
+              const note = response.data;
+              const cardHtml = `
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="card mb-3">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-end mb-3">
+                          <a href="edit.html?id=${note.id}" class="btn btn-success me-2" id="editBtn">Edit</a>
+                          <a href="#" class="btn btn-danger" id="deleteBtn">Delete</a>
+                        </div>
+                        <div class="flex-column justify-content-center align-items-center">
+                          <img src="./assets/img/coding.webp" class="img-thumbnail rounded-2" alt="programming"/>
+                          <h5 class="card-title">${note.title}</h5>
+                          <p class="card-text">${note.description}</p>
+                          <p class="card-text text-muted">${new Date(note.createdAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+
+              $("#noteDetails").html(cardHtml);
+
+              $("#deleteBtn").click(function () {
+                if (confirm("Are you sure you want to delete this note?")) {
+                  $.ajax({
+                    type: "POST",
+                    url: `https://dev-api.surosowancyber.or.id/deleteNote/${noteId}`,
+                    success: function () {
+                      alert("Note deleted successfully");
+                      window.location.href = "index.html";
+                    },
+                    error: function () {
+                      alert("Failed to delete note");
+                    },
+                  });
+                }
+              });
+            },
+            error: function () {
+              alert("Failed to load note details");
+            },
+          });
+        } else {
+          alert("No note ID provided in URL");
+        }
+      });
+    </script>
+  </body>
+</html>
